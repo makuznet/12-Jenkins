@@ -1,0 +1,48 @@
+---
+- name: add Jenkins apt-key
+  apt_key:
+    url: https://pkg.jenkins.io/debian/jenkins.io.key
+    state: present
+
+- name: add Jenkins APT repository
+  apt_repository:
+    repo: deb http://pkg.jenkins.io/debian-stable binary/
+    state: present
+    filename: 'jenkins.list'
+
+- name: install Jenkins
+  apt:
+    update_cache: yes
+    name: "{{ item }}"
+    state: present
+  loop:
+    - jenkins
+  notify:
+    - enable jenkins  
+
+- name: adding jenkins user to group docker
+  ansible.builtin.user:
+    name: jenkins
+    groups: docker
+    append: true
+
+- name: allow jenkins user to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    line: 'jenkins ALL=(ALL) NOPASSWD: ALL'
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Add .ssh directory for jenkins user
+  file:
+    path: /var/lib/jenkins/.ssh
+    state: directory
+    mode: 0700
+    owner: jenkins
+    group: jenkins
+
+- name: copy ssh private key to jenkins .ssh dir
+  copy:
+    src: files/id_rsa
+    dest: /var/lib/jenkins/.ssh/id_rsa
+    owner: jenkins
+    mode: 0600

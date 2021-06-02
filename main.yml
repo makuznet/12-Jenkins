@@ -1,0 +1,23 @@
+---
+- name: configure jenkins
+  hosts: ya[0]
+  become: true
+  roles:
+    - role: common
+      tags: common
+    - role: sfactory
+      tags: sfactory
+    - role: jenkins
+      tags: jenkins    
+
+- name: configure production and staging
+  hosts: ya[1:2]
+  become: true
+  roles:
+    - role: common
+      tags: common
+    - role: sfactory
+      tags: sfactory  
+    - role: juser
+      tags: juser  
+    

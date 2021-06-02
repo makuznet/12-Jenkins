@@ -1,0 +1,20 @@
+---
+- name: create jenkins user
+  user: 
+    name: jenkins
+    state: present
+    create_home: true
+    home: /var/lib/jenkins
+    shell: /bin/bash
+
+- name: allow jenkins user to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    line: 'jenkins ALL=(ALL) NOPASSWD: ALL'
+    validate: /usr/sbin/visudo -cf %s
+
+- name: set up authorized keys for the jenkins user
+  authorized_key: 
+    user: jenkins
+    state: present
+    key: "{{ lookup('file', 'files/id_rsa.pub') }}"

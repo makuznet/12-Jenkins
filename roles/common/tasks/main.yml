@@ -1,0 +1,10 @@
+---
+- name: install apps
+  apt:
+    update_cache: yes
+    name: "{{ item }}"
+    state: present
+  loop:
+    - docker.io
+    - gnupg
+    - default-jdk
